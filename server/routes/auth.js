@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
         cb(null, 'public/userProfiles')
     },
     filename: function (req, file, cb) {
-        const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1000);
         cb(null, uniquePrefix + '-' + file.originalname)
     }
 })
@@ -65,6 +65,7 @@ router.post('/login', async (req, res) => {
         const userLogin = await User.findOne({ email });
         if (userLogin) {
             const isMatching = await bcrypt.compare(password, userLogin.password);
+            console.log("ismatching",isMatching);
             if (isMatching) {
                 const token = await userLogin.generateAuthToken(userLogin);
                 res.cookie("jwtoken", token);
@@ -84,7 +85,7 @@ router.post('/login', async (req, res) => {
     }
 });
 router.post('/view', authenticate, async (req, res) => {
-    console.log('here');
+    console.log('here in view route');
     const { id } = req.body;
     console.log(id);
     if (!id) {
@@ -93,7 +94,7 @@ router.post('/view', authenticate, async (req, res) => {
     try {
         const userFound = await User.findOne({ _id: id });
         if (userFound) {
-            res.status(201).send(userFound)
+            res.status(201).send(userFound);
         }
         else {
             res.status(422).json({ error: "Invalid credentials" })
@@ -105,94 +106,63 @@ router.post('/view', authenticate, async (req, res) => {
 })
 
 router.post('/filter', async (req, res) => {
-    const gtage = req.body.gtage;
-    const ltage = req.body.ltage;
+    const gtage = parseInt(req.body.gtage);
+    const ltage = parseInt(req.body.ltage);
     const gender = req.body.gender;
     const religion = req.body.religion;
     const marital_status = req.body.marital_status;
-    console.log(gtage + ltage + gender + religion);
-
-    let fltparam;
-
-    if (gtage && ltage && gender && religion && marital_status) {
-        fltparam = { $and: [{ age: { $gte: gtage } }, { age: { $lte: ltage } }, { gender }, { religion },{marital_status}] }
+     console.log("marital",marital_status);
+    if (ltage && gtage && ltage < gtage) {
+        return res.status(422).json({ error: "Invalid age range" });
     }
-    else if (gtage && gender && religion && !ltage && marital_status) {
-        fltparam = { $and: [{ age: { $gte: gtage } }, { gender }, { religion },{marital_status}] }
+
+    let fltparam = {};
+
+    if (gtage && ltage) {
+        fltparam.age = { $gte: gtage, $lte: ltage };
+    } else if (gtage) {
+        fltparam.age = { $gte: gtage };
+    } else if (ltage) {
+        fltparam.age = { $lte: ltage };
     }
-    else if (gtage && gender && religion && !ltage && !marital_status) {
-        fltparam = { $and: [{ age: { $gte: gtage } }, { gender }, { religion }] }
+
+    if (gender) {
+        fltparam.gender = gender;
+    }
+
+    if (religion) {
+        fltparam.religion = religion;
+    }
+    if (marital_status) {
+        fltparam.marital_status = marital_status;
     }
     try {
-
-        const user = await User.find(fltparam);
-        console.log(user);
-        if (user.length != 0) {
-            return res.status(201).json(user);
+        const users = await User.find(fltparam);
+       //  console.log("users");
+        if (users.length > 0) {
+       
+            return res.status(200).json(users);
+        } else {
+     
+            return res.status(404).json({ error: "No matches found" });
         }
-        return res.status(422).json({ error: "No matches found." })
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
+        return res.status(500).json({ error: "Internal server error" });
     }
 });
+
 router.get('/logout', (req, res) => {
     res.clearCookie('jwtoken', { path: '/home' });
     console.log("logged out");
     res.status(200).json({ message: "Logged out successfully." });
 });
-
-router.post('/update', [authenticate,upload.single('profile')], async (req, res) => {
-    
-    const {_id, name, age, dob, gender, phone, email, password, marital_status, mother_tongue, religion, city, pincode } = req.body;
-    console.log(password+"password");
-    let profile = (req.file) ? req.file.filename : null;
-    if(profile)
-    {
-        try
-        {
-            await User.updateOne({ _id }, {
-                $set: { profile:profile }
-            });
-        }
-        catch (err) {
-            res.status(422).json({ error: "Cannot Update profile! Try again" })
-            console.log(err);
-        }
-        
-    }
-
-    if (!name || !email || !_id || !phone || !gender || !age || !dob || !marital_status || !mother_tongue || !religion || !city) {
-        return res.status(422).json({ error: "Please fill all fields properly." })
-    }
-    try {
-
-        if (password) {
-        let new_password=await  bcrypt.hash(password,12);
-            await User.updateOne({ _id }, {
-
-                $set: { name, age, dob, gender, phone, email, password:new_password, marital_status, mother_tongue, religion, city, pincode }
-            })
-        }
-        else {
-            await User.updateOne({ _id }, {
-                $set: { name, age, dob, gender, phone, email, marital_status, mother_tongue, religion, city, pincode }
-            })
-        }
-
-        return res.status(202).json({ message: "Update successful." })
-    }
-    catch (err) {
-        res.status(422).json({ error: "Invalid credentials" })
-        console.log(err);
-    }
-})
 router.post('/edit', authenticate, (req, res) => {
     res.send(req.rootUser);
 });
 router.post('/delete', authenticate, async (req, res) => {
     if (req.rootUser._id) {
-        console.log("here")
+        console.log("here in delete route")
         try {
             const userExist = await User.findOne({ _id: req.rootUser._id });
             if (userExist) {

@@ -295,7 +295,6 @@ const Register = () => {
                                     value={user.marital_status} required >
                                     <option value="" selected="selected" disabled="disable">Please Select</option>
                                     <option value="Never Married">Never Married</option>
-                                    <option value="Married">Married</option>
                                     <option value="Awaiting Divorce">Awaiting Divorce</option>
                                     <option value="Divorced">Divorced</option>
                                     <option value="Widowed">Widowed</option>

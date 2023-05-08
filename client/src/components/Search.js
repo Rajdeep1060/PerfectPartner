@@ -43,7 +43,7 @@ const Search = () => {
                 })
             });
             const data = await res.json();
-            if (res.status === 422 || !data) {
+            if (res.status === 422 || !data || res.status===404) {
                 toast.error(data.error, { position: toast.POSITION.BOTTOM_CENTER});
                 setState(null);
             } else {
@@ -125,7 +125,7 @@ const Search = () => {
 
                             <select name="marital_status" id="marital_status" className="form-select" placeholder="Status" onChange={details_input}
                                 value={query.marital_status} required >
-                                <option value="UnMarried" selected="true">Un-Married</option>
+                                <option value="Never Married" selected="true">Un-Married</option>
                                 <option value="Married">Married</option>
                                 <option value="Awaiting Divorce">Awaiting Divorce</option>
                                 <option value="Divorced">Divorced</option>
@@ -149,9 +149,9 @@ const Search = () => {
             <section id="services" class="services section-bg mt-5">
                 <div Cssclass="container" data-aos="fade-up">
                     <div CssClass="row" >
-                        {userData && userData.map((item, index) => {
+                        {Array.isArray(userData)&& userData.map((item, index) => {
 
-
+                              
                             return (
                                 <div data-aos="zoom-in" data-aos-delay="100">
                                     <div class="box">
