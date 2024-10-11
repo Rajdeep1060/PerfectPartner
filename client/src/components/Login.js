@@ -3,10 +3,16 @@ import { Link, useHistory } from "react-router-dom";
 import { UserContext } from "../App";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 const Login = () => {
     const { state, dispatch } = useContext(UserContext);
     const history = useHistory();
     const [email, setEmail] = useState("");
+    const [visible, setVisible] = useState(false); 
+
+    const toggleVisibility = () => {
+        setVisible((prevVisible) => !prevVisible);
+    };
     const [password, setPassword] = useState("");
     const loginUser = async (e) => {
         e.preventDefault();
@@ -57,7 +63,12 @@ const Login = () => {
                                 </div>
                                 <div class="form-group">
                                     <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
-                                    <input type="password" onChange={(e) => setPassword(e.target.value)} value={password} name="your_pass" id="your_pass" placeholder="Password" />
+                                    <input type={visible ? "text":"password"} onChange={(e) => setPassword(e.target.value)} value={password} name="your_pass" id="your_pass" placeholder="Password" />
+                                    {visible ? (
+                <EyeOutlined onClick={toggleVisibility} style={{ cursor: 'pointer' }} />
+            ) : (
+                <EyeInvisibleOutlined onClick={toggleVisibility} style={{ cursor: 'pointer' }} />
+            )}
                                 </div>
 
                                 <div class="form-group form-button">

@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 
 
 mongoose.connect("mongodb://127.0.0.1:27017/perfectpartner")
-.then(()=>console.log("connection established"))
+.then(()=>console.log("DB connection established"))
 .catch((err)=>console.log(err));
 
 

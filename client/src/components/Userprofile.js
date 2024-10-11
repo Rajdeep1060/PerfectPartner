@@ -11,7 +11,7 @@ const Userprofile = () => {
     const calluserprofile = async () => {
         try {
             const res = await fetch("/about", {
-                method: "POST",
+                method: "GET",
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json"

@@ -20,8 +20,8 @@ const Editprofile = () => {
     });
     const callProfile = async () => {
         try {
-            const res = await fetch("/edit", {
-                method: "POST",
+            const res = await fetch("/about", {
+                method: "GET",
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json"
@@ -169,14 +169,13 @@ const Editprofile = () => {
             formdata.append('city', user.city)
             formdata.append('pincode', user.pincode)
             console.log(formdata);
-            const res = await fetch("/update", {
+            const res = await fetch("/edit", {
                 method: "POST",
-                credentials: "include",
                 body: formdata
             });
-
+           console.log("res",res);
             const data = await res.json();
-            if (res.status === 422 || !data) {
+            if (res.status !== 200 || !data) {
                 toast.error(data.error, { position: toast.POSITION.BOTTOM_CENTER});
 
             } else {
@@ -215,7 +214,7 @@ const Editprofile = () => {
                         <div className="signup-form">
                             <h2 className="form-title">Manage Profile</h2>
                             <img src={user.profile ? imagePath + user.profile : userpic} width="145px" height="140px" alt="" /><br /><br />
-                            <form method="POST" className="register-form" action="/register" id="register-form" encType="multipart/form-data">
+                            <form method="POST" className="register-form" id="register-form" encType="multipart/form-data">
                                 <div className="form-group">
                                     {/* <span><h6>Upload New Profile</h6></span> */}
 
@@ -259,7 +258,7 @@ const Editprofile = () => {
                                 <br />
                                 <div className="row">
                                     <div className="form-group form-button col">
-                                        <input type="submit" name="signup" onClick={UpdateData} id="signup" className="btn btn-success btn-lg btn-block" value="Update" />
+                                        <input type="submit" name="signup" onClick={UpdateData} id="signup" className="btn btn-success btn-lg btn-block" value="Update profile" />
                                     </div>
 
                                 </div>

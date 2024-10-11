@@ -9,16 +9,18 @@ require('dotenv').config();
 const Search = () => {
     const [query, setQuery] = useState({
         gtage: "18",
-        ltage: "",
+        ltage: "50",
         gender: "Male",
-        religion: "Hindu",
-        marital_status: "UnMarried"
+        religion: "Sikh",
+        marital_status: "Never Married"
     });
 
     let name, value;
     const details_input = (event) => {
         name = event.target.name;
+        console.log("name",name);
         value = event.target.value;
+        console.log("value",value);
         setQuery({ ...query, [name]: value });
     }
     const [userData, setState] = useState([]);
@@ -26,7 +28,7 @@ const Search = () => {
     const PostData = async (event) => {
         console.log("search oanks");
         event.preventDefault();
-        const { gtage, ltage, gender, religion } = query;
+        const { gtage, ltage, gender, religion,marital_status } = query;
 
         if (gtage < 18) {
             toast.error("Minimum age should be 18.", { position: toast.POSITION.BOTTOM_CENTER});
@@ -39,7 +41,7 @@ const Search = () => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    gtage, ltage, gender, religion
+                    gtage, ltage, gender, religion,marital_status
                 })
             });
             const data = await res.json();

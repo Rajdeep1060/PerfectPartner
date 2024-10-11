@@ -52,7 +52,7 @@ router.post('/register', upload.single('profile'), async (req, res) => {
     }
 
 });
-router.post('/about', authenticate, (req, res) => {
+router.get('/about', authenticate, (req, res) => {
     res.send(req.rootUser);
 });
 router.post('/login', async (req, res) => {
@@ -157,9 +157,36 @@ router.get('/logout', (req, res) => {
     console.log("logged out");
     res.status(200).json({ message: "Logged out successfully." });
 });
-router.post('/edit', authenticate, (req, res) => {
-    res.send(req.rootUser);
-});
+router.post('/edit', upload.single('profile'), authenticate, async (req, res) => {
+
+    let profile = (req?.file) ? req?.file?.filename : null;
+    try {
+        const { _id, name, age, dob, gender, phone, email,password, marital_status, mother_tongue, religion, city, pincode } = req.body;
+       
+        const updateFields = { name, age, dob, gender, phone, email, marital_status, mother_tongue, religion, city, pincode };
+
+        if (profile) {
+            updateFields.profile = profile; 
+        }
+        if(password){
+            updateFields.password=await bcrypt.hash(password,4);
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            _id,
+            updateFields, 
+            { new: true }
+        );
+      if (updatedUser) {
+        return res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+      } else {
+        return res.status(404).json({ message: 'User not found' });
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  });
 router.post('/delete', authenticate, async (req, res) => {
     if (req.rootUser._id) {
         console.log("here in delete route")
